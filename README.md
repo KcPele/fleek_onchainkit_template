@@ -41,19 +41,13 @@ This guide will show you how to do deploy your SE-2 build to Fleek.
 
 2/ From your local computer, login into Fleek with this command:
 
+To deploy your dapp to Fleek, run this command:
+
 ```shell
 yarn fleek:login
 ```
 
 ## 🚀 Deploy to Fleek
-
-To deploy your SE-2 build to Fleek, run this command:
-
-```shell
-sh ./init.sh
-```
-
-After the script runs
 
 ```shell
 yarn fleek:deploy
@@ -67,7 +61,7 @@ First time it will ask you to init your project, use these params:
 
 Your app will be build then uploaded to Fleek.
 
-For example, this repo is deployed to https://broad-window-modern.on-fleek.app/
+For example, this repo is deployed to https://thundering-dawn-hissing.on-fleek.app/
 
 ## 🚫 Limitations
 
