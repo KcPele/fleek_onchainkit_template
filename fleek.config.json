@@ -1,7 +1,7 @@
 {
   "sites": [
     {
-      "slug": "<SLUG>",
+      "slug": "full-processor-colossal",
       "distDir": "out"
     }
   ]
