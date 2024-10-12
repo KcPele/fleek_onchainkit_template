@@ -12,11 +12,68 @@ import {
   SwapSettingsSlippageTitle,
 } from "@coinbase/onchainkit/swap";
 import { Wallet, ConnectWallet } from "@coinbase/onchainkit/wallet";
-import { useAccount } from "wagmi";
+import { useAccount, useAccount as useAccount2 } from "wagmi";
 import type { Token } from "@coinbase/onchainkit/token";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+async function fetchBaseTokens(): Promise<Token[]> {
+  // Define a list of tokens available on Base mainnet
+  const baseTokens = [
+    { id: "ethereum", symbol: "ETH", name: "Ethereum" },
+    { id: "usd-coin", symbol: "USDC", name: "USD Coin" },
+    { id: "dai", symbol: "DAI", name: "Dai" },
+    { id: "chainlink", symbol: "LINK", name: "Chainlink" },
+    { id: "wrapped-bitcoin", symbol: "WBTC", name: "Wrapped Bitcoin" },
+    { id: "uniswap", symbol: "UNI", name: "Uniswap" },
+    { id: "compound-governance-token", symbol: "COMP", name: "Compound" },
+    { id: "aave", symbol: "AAVE", name: "Aave" },
+    { id: "balancer", symbol: "BAL", name: "Balancer" },
+    { id: "curve-dao-token", symbol: "CRV", name: "Curve DAO Token" },
+  ];
+
+  try {
+    const response = await axios.get(
+      "https://api.coingecko.com/api/v3/coins/markets",
+      {
+        params: {
+          vs_currency: "usd",
+          order: "market_cap_desc",
+          per_page: 250,
+          page: 1,
+          sparkline: false,
+          ids: baseTokens.map(token => token.id).join(','),
+        },
+      }
+    );
+
+    const tokens: Token[] = response.data.map((token: any) => ({
+      address: "", // You'll need to manually add these or use a different API
+      chainId: 8453, // Base mainnet chain ID
+      decimals: 18, // Assuming 18 decimals for most tokens, adjust if needed
+      name: token.name,
+      symbol: token.symbol.toUpperCase(),
+      image: token.image,
+    }));
+
+    return tokens;
+  } catch (error) {
+    console.error("Error fetching tokens:", error);
+    return [];
+  }
+}
 
 export default function SwapComponents() {
   const { address } = useAccount();
+  const [swappableTokens, setSwappableTokens] = useState<Token[]>([]);
+
+  useEffect(() => {
+    async function loadTokens() {
+      const tokens = await fetchBaseTokens();
+      setSwappableTokens(tokens);
+    }
+    loadTokens();
+  }, []);
 
   const ETHToken: Token = {
     address: "",
@@ -39,7 +96,6 @@ export default function SwapComponents() {
   };
 
   // add other tokens here to display them as options in the swap
-  const swappableTokens: Token[] = [ETHToken, USDCToken];
 
   return address ? (
     <Swap isSponsored className="text-black">

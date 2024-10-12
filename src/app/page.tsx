@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo } from "react";
 import { ConnectButton } from "@/components/Wallet";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { deployedContract } from "@/constants/deployedContract";
 import { useState } from "react";
 import { useCapabilities, useWriteContracts } from "wagmi/experimental";
@@ -18,27 +18,28 @@ export default function Home() {
     abi: deployedContract.abi,
     functionName: "greeting",
   });
-  const { data: availableCapabilities } = useCapabilities({
-    account: account.address,
-  });
-  const capabilities = useMemo(() => {
-    if (!availableCapabilities || !account.chainId) return;
-    const capabilitiesForChain = availableCapabilities[account.chainId];
-    if (
-      capabilitiesForChain["paymasterService"] &&
-      capabilitiesForChain["paymasterService"].supported
-    ) {
-      return {
-        paymasterService: {
-          url: "https://api.developer.coinbase.com/rpc/v1/base-sepolia/QVnPT0XROesIx8BFkjAETLpULlnb6rxG",
-        },
-      };
-    }
-  }, [availableCapabilities, account.chainId]);
-  console.log(capabilities);
-  const { writeContractsAsync } = useWriteContracts({
-    config: wagmiConfig,
-  });
+  const { writeContractAsync } = useWriteContract();
+  // const { data: availableCapabilities } = useCapabilities({
+  //   account: account.address,
+  // });
+  // const capabilities = useMemo(() => {
+  //   if (!availableCapabilities || !account.chainId) return;
+  //   const capabilitiesForChain = availableCapabilities[account.chainId];
+  //   if (
+  //     capabilitiesForChain["paymasterService"] &&
+  //     capabilitiesForChain["paymasterService"].supported
+  //   ) {
+  //     return {
+  //       paymasterService: {
+  //         url: "https://api.developer.coinbase.com/rpc/v1/base-sepolia/M38cgIFQVu6ldPK0gob81k2_LblbB3jq",
+  //       },
+  //     };
+  //   }
+  // }, [availableCapabilities, account.chainId]);
+  // console.log(capabilities);
+  // const { writeContractsAsync } = useWriteContracts({
+  //   config: wagmiConfig,
+  // });
   const abi = parseAbi(["function setGreeting(string)"]);
   return (
     <div className="">
@@ -57,15 +58,11 @@ export default function Home() {
         <button
           className="bg-gray-300  text-black rounded-md p-2"
           onClick={async () => {
-            writeContractsAsync({
-              contracts: [
-                {
-                  address: deployedContract.address as `0x${string}`,
-                  abi: abi,
-                  functionName: "setGreeting",
-                  args: [newGreeting],
-                },
-              ],
+            writeContractAsync({
+              address: deployedContract.address as `0x${string}`,
+              abi: abi,
+              functionName: "setGreeting",
+              args: [newGreeting],
             });
           }}
         >
